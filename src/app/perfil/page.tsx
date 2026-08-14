@@ -27,10 +27,10 @@ export default async function PerfilPage() {
               Mendoza, Argentina • US / EU Timezones overlay (EST / UTC-3) • reneepaternesi@gmail.com
             </p>
             <div className="flex gap-4 mt-3">
-              <a href="#" className="flex items-center gap-1 text-sm font-semibold text-cyan-500 hover:text-cyan-400">
+              <a href="https://linkedin.com/in/reneepaternesi" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm font-semibold text-cyan-500 hover:text-cyan-400">
                 <Briefcase className="w-4 h-4" /> LinkedIn Profile <ExternalLink className="w-3 h-3" />
               </a>
-              <a href="#" className="flex items-center gap-1 text-sm font-semibold text-cyan-500 hover:text-cyan-400">
+              <a href="https://github.com/reneepaternesi" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm font-semibold text-cyan-500 hover:text-cyan-400">
                 <Code className="w-4 h-4" /> GitHub Repos <ExternalLink className="w-3 h-3" />
               </a>
             </div>
