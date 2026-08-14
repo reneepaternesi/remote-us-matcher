@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 'use client';
 import { useState } from 'react';
 import { Link as LinkIcon, Cpu } from 'lucide-react';

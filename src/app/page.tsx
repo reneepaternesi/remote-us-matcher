@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { FileSearch, DollarSign, Sparkles, ShieldCheck, CheckCircle2, SlidersHorizontal } from 'lucide-react';
 import prisma from '@/lib/prisma';
 
