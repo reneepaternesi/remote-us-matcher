@@ -5,7 +5,7 @@ An AI-powered, data-dense job matching and tracking dashboard built for Senior E
 This project was built to solve the signal-to-noise ratio in modern job hunting. It acts as a specialized pipeline that aggregates, scores, and tracks remote job opportunities using AI to filter out roles that don't match strict seniority, stack, and salary constraints.
 
 ## 🚀 Live Demo
-**[Insert your Vercel Link Here]**
+**https://remote-us-matcher-hycxvr43f-renee-paternesi.vercel.app/**
 
 ## 💻 Tech Stack
 - **Framework:** Next.js (App Router), React 19
