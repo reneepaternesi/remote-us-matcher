@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RemoteUS Matcher 🎯
 
-## Getting Started
+An AI-powered, data-dense job matching and tracking dashboard built for Senior Engineering roles.
 
-First, run the development server:
+This project was built to solve the signal-to-noise ratio in modern job hunting. It acts as a specialized pipeline that aggregates, scores, and tracks remote job opportunities using AI to filter out roles that don't match strict seniority, stack, and salary constraints.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Live Demo
+**[Insert your Vercel Link Here]**
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 💻 Tech Stack
+- **Framework:** Next.js (App Router), React 19
+- **Styling:** Tailwind CSS, shadcn/ui, Framer Motion
+- **Database & Backend:** Supabase (PostgreSQL), Prisma ORM
+- **AI Integration:** Google Gemini API (for semantic analysis and automated matching)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ✨ Key Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Data-Dense Dashboards:** Designed to handle and display complex datasets without overwhelming the user, focusing on visual hierarchy and rapid scanning.
+- **AI-Powered Scoring Engine:** Automatically parses job descriptions and scores them against a configurable professional profile, instantly discarding low-match roles.
+- **Kanban Pipeline:** A drag-and-drop board to track the lifecycle of applications (Available → Applied → Interviewing → Rejected).
+- **Pixel-Perfect UI:** Built entirely without handoffs. Every component is crafted with strong opinions on design, typography, spacing, and micro-interactions.
+- **Serverless Architecture:** Fully deployed on Vercel with a Supabase PostgreSQL backend for fast, scalable data fetching.
 
-## Learn More
+## 🧠 Why I Built This (The Design Engineering Perspective)
 
-To learn more about Next.js, take a look at the following resources:
+As a Senior Frontend Engineer, I believe the best products emerge when there is no gap between design intent and engineering execution. I built this tool to demonstrate my ability to:
+1. Own a product end-to-end (from database schema to final pixel).
+2. Leverage AI tooling to drastically reduce iteration cycles.
+3. Build interfaces that feel premium and trustworthy, especially when handling complex data workflows.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠️ Local Development
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Clone the repository:
+   \`\`\`bash
+   git clone https://github.com/yourusername/remote-us-matcher.git
+   \`\`\`
+2. Install dependencies:
+   \`\`\`bash
+   npm install
+   \`\`\`
+3. Set up your `.env` file with your Supabase and API keys:
+   \`\`\`env
+   DATABASE_URL="postgresql://postgres.[ID]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true"
+   DIRECT_URL="postgresql://postgres.[ID]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres"
+   GEMINI_API_KEY="your_api_key"
+   \`\`\`
+4. Push the Prisma schema to your database:
+   \`\`\`bash
+   npx prisma db push
+   \`\`\`
+5. Run the development server:
+   \`\`\`bash
+   npm run dev
+   \`\`\`
