@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Job {
+  id          String   @id @default(cuid())
+  title       String
+  company     String
+  url         String
+  salaryRange String?
+  source      String
+  description String?
+  analyzed    Boolean  @default(false)
+  matchScore  Int      @default(0)
+  aiInsight   String?
+  status      String   @default("AVAILABLE") // AVAILABLE, APPLIED, INTERVIEWING, REJECTED, DISCARDED
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ProfileSettings {
+  id               String   @id @default("default")
+  minHourlyRate    Int      @default(45)
+  minMonthlySalary Int      @default(7500)
+  contractType     String   @default("1099, B2B Contractor, Direct Hire Remote")
+  timezone         String   @default("EST, CST, PST, UTC-3, UTC-4")
+  techStack        String   @default("React, Next.js, TypeScript, JavaScript (ES6+), Tailwind CSS, Redux, Zustand, Node.js")
+  targetRoles      String   @default("Senior Frontend Engineer, Frontend Developer, UI Architect, React Developer")
+  excludedKeywords String   @default("QA Manual, QA Automation, Pure Backend Java/Spring, WordPress, PHP, Technical Support, Junior, Content Writer")
+  directHireOnly        Boolean  @default(false)
+  minContractDuration   String   @default("12+ meses")
+  companySizePreference String   @default("Sin preferencia (Startups, Scaleups o Corporativos)")
+  portfolioState        String   @default("GitHub con trabajos de cursos y assessments. Portafolio personalizado en desarrollo como próxima etapa.")
+  professionalSummary   String   @default("Senior Frontend Engineer con más de 12 años de experiencia. Nivel de inglés C1/C2 Avanzado. Enfoque 100% como Individual Contributor (IC) resolviendo problemas técnicos de alta complejidad, sin experiencia ni interés en roles de Liderazgo Técnico (Tech Lead) o Management.")
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
