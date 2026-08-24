@@ -16,6 +16,7 @@ This project was built to solve the signal-to-noise ratio in modern job hunting.
 ## ✨ Key Features
 
 - **Data-Dense Dashboards:** Designed to handle and display complex datasets without overwhelming the user, focusing on visual hierarchy and rapid scanning.
+- **Global Remote Sourcing:** Aggregates top-tier US/Global remote job feeds (WeWorkRemotely, WorkingNomads, Remotive, Jobicy, RemoteOK, Himalayas) while filtering out local European noise.
 - **AI-Powered Scoring Engine:** Automatically parses job descriptions and scores them against a configurable professional profile, instantly discarding low-match roles.
 - **Kanban Pipeline:** A drag-and-drop board to track the lifecycle of applications (Available → Applied → Interviewing → Rejected).
 - **Pixel-Perfect UI:** Built entirely without handoffs. Every component is crafted with strong opinions on design, typography, spacing, and micro-interactions.
