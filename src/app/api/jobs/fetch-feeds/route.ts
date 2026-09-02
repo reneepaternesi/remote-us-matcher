@@ -2,6 +2,8 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import Parser from 'rss-parser';
+import { searchJobUrls } from '@/lib/job-sources/search-engine';
+import { extractJobsFromSearchResults } from '@/lib/job-sources/jd-extractor';
 
 interface ScrapedJob {
   title: string;
@@ -32,14 +34,16 @@ export async function POST() {
 
     const allJobs: ScrapedJob[] = [];
 
-    // Parallel fetch from all open JSON APIs
+    // Parallel fetch from all open JSON APIs + Search Engine (Ashby & Greenhouse)
     const fetches = await Promise.allSettled([
       fetch('https://remotive.com/api/remote-jobs?category=software-dev&limit=50').then(res => res.json()),
       fetch('https://jobicy.com/api/v2/remote-jobs?get=development').then(res => res.json()),
       fetch('https://remoteok.com/api?tag=dev').then(res => res.json()).catch(() => []), // RemoteOK blocks some user-agents
       fetch('https://himalayas.app/jobs/api?limit=50').then(res => res.json()).catch(() => []),
       fetch('https://www.workingnomads.com/api/exposed_jobs').then(res => res.json()).catch(() => []),
-      parser.parseURL('https://weworkremotely.com/remote-jobs.rss').catch(() => null)
+      parser.parseURL('https://weworkremotely.com/remote-jobs.rss').catch(() => null),
+      // (New) Ashby + Greenhouse via Serper.dev → native JSON APIs
+      searchJobUrls().then(results => extractJobsFromSearchResults(results)),
     ]);
 
     // Parse Remotive
@@ -131,6 +135,11 @@ export async function POST() {
       allJobs.push(...parsed);
     }
 
+    // Parse Ashby + Greenhouse (via Serper.dev search)
+    if (fetches[6].status === 'fulfilled' && Array.isArray(fetches[6].value)) {
+      allJobs.push(...(fetches[6].value as ScrapedJob[]));
+    }
+
     // Hardcoded aggressive exclusions for Staffing Agencies and W2 requirements
     const agencyExclusions = ['bairesdev', 'turing', 'crossover', 'toptal', 'globant', 'epam', 'nearshore business solutions', 'staff augmentation', 'staffing agency', 'recruitment agency', 'outsourcing'];
     const w2Exclusions = ['w2', 'w-2', 'us citizen', 'green card', 'security clearance', 'ts/sci', 'must reside in the us', 'must reside in the united states', 'only us residents', 'only us-based'];
@@ -200,7 +209,7 @@ export async function POST() {
       }
     }
 
-    return NextResponse.json({ success: true, processedCount: savedCount, sources: ['Remotive', 'Jobicy', 'RemoteOK', 'Himalayas', 'WorkingNomads', 'WeWorkRemotely'] });
+    return NextResponse.json({ success: true, processedCount: savedCount, sources: ['Remotive', 'Jobicy', 'RemoteOK', 'Himalayas', 'WorkingNomads', 'WeWorkRemotely', 'Ashby', 'Greenhouse'] });
 
   } catch (error: unknown) {
     const err = error as Error;

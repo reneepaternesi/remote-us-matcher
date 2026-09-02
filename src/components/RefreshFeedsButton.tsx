@@ -16,8 +16,13 @@ export default function RefreshFeedsButton() {
       const data = await res.json();
       
       if (data.success) {
-        setMessage(`¡Éxito! ${data.processedCount} nuevas vacantes procesadas.`);
-        router.refresh(); // Reload the dashboard to show new jobs
+        if (data.processedCount > 0) {
+          setMessage(`¡${data.processedCount} nuevas vacantes encontradas!`);
+          router.refresh();
+        } else {
+          setMessage('');
+          router.refresh();
+        }
       } else {
         setMessage(`Error: ${data.error}`);
       }

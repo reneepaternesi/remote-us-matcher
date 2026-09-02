@@ -79,7 +79,7 @@ export async function POST(request: Request) {
     `;
 
     let aiResponse;
-    let retries = 3;
+    const retries = 3;
     for (let i = 0; i < retries; i++) {
       try {
         aiResponse = await ai.models.generateContent({
@@ -87,8 +87,9 @@ export async function POST(request: Request) {
           contents: prompt,
         });
         break;
-      } catch (error: any) {
-        const isUnavailable = error?.status === 503 || error?.message?.includes('503') || error?.message?.includes('high demand');
+      } catch (error: unknown) {
+        const err = error as { status?: number; message?: string };
+        const isUnavailable = err?.status === 503 || err?.message?.includes('503') || err?.message?.includes('high demand');
         if (isUnavailable && i < retries - 1) {
           console.warn(`Gemini API overloaded (503). Retrying in 2 seconds... (Attempt ${i + 1} of ${retries})`);
           await new Promise(res => setTimeout(res, 2000));
