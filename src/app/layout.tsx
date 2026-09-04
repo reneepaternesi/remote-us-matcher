@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 
 import prisma from '@/lib/prisma';
 
@@ -24,6 +25,7 @@ export default async function RootLayout({
         <main className="flex-1 p-6 overflow-y-auto">
           {children}
         </main>
+        <Footer />
       </body>
     </html>
   );
