@@ -28,11 +28,13 @@ export async function updateJobStatus(jobId: string, status: string) {
       'entrevista': 'INTERVIEWING',
       'oferta': 'OFFER_RECEIVED',
       'descartada': 'REJECTED',
+      'cerrada': 'CLOSED',
       // If passed directly
       'APPLIED': 'APPLIED',
       'INTERVIEWING': 'INTERVIEWING',
       'OFFER_RECEIVED': 'OFFER_RECEIVED',
-      'REJECTED': 'REJECTED'
+      'REJECTED': 'REJECTED',
+      'CLOSED': 'CLOSED'
     };
 
     const targetStatus = statusMap[status] || 'APPLIED';
@@ -51,6 +53,22 @@ export async function updateJobStatus(jobId: string, status: string) {
   }
 }
 
+export async function moveClosedJobs(closedIds: string[]) {
+  try {
+    if (closedIds.length === 0) return { success: true, count: 0 };
+    await prisma.job.updateMany({
+      where: { id: { in: closedIds } },
+      data: { status: 'CLOSED' }
+    });
+    revalidatePath('/');
+    revalidatePath('/postulaciones');
+    return { success: true, count: closedIds.length };
+  } catch (error) {
+    console.error('Error moving closed jobs:', error);
+    return { success: false, error: 'No se pudieron mover las vacantes cerradas' };
+  }
+}
+
 export async function updateJobNotes(jobId: string, notes: string) {
   try {
     await prisma.job.update({
@@ -65,3 +83,4 @@ export async function updateJobNotes(jobId: string, notes: string) {
     return { success: false, error: 'No se pudo guardar la nota' };
   }
 }
+

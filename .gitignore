@@ -43,3 +43,11 @@ next-env.d.ts
 /src/generated/prisma
 
 dev.db
+
+# Resumes, CVs, and Job Tracking
+*Resume*.md
+*Resume*.docx
+*CV*.*
+APPLICATIONS_TRACKING*.md
+*Interview_Prep*.md
+*Architecture_Study*.md
