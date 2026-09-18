@@ -163,6 +163,19 @@ export async function POST() {
         return false; // Silently discard
       }
 
+      const nonTechTitleKeywords = ['analyst', 'physician', 'artist', 'driver', 'sales', 'recruiter', 'accountant', 'legal', 'nurse', 'marketing specialist', 'operations lead'];
+      const titleLower = String(job.title).toLowerCase();
+      if (nonTechTitleKeywords.some(kw => titleLower.includes(kw))) {
+        return false;
+      }
+
+      // Title must relate to software development / engineering
+      const validTitleKeywords = ['engineer', 'developer', 'frontend', 'front-end', 'web', 'ui', 'software', 'architect', 'fullstack', 'full-stack'];
+      const hasValidTitle = validTitleKeywords.some(kw => titleLower.includes(kw));
+      if (!hasValidTitle) {
+        return false;
+      }
+
       // Must contain at least one target role OR tech stack keyword
       const hasRole = targetRolesKeywords.some(kw => text.includes(kw));
       const hasTech = techStackKeywords.some(kw => text.includes(kw));

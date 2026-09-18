@@ -17,14 +17,20 @@ export interface SearchResult {
 // Multiple variations cover the different location/scope keywords used on each platform.
 // Deduplication by URL handles any overlaps between queries.
 const SEARCH_QUERIES: { query: string; source: JobSource }[] = [
-  // Ashby — senior frontend / React roles that are remote
+  // Ashby — senior frontend / React / Next.js roles that are remote
   { query: 'site:jobs.ashbyhq.com React Remote senior frontend engineer', source: 'Ashby' },
+  { query: 'site:jobs.ashbyhq.com Next.js Remote frontend engineer', source: 'Ashby' },
   { query: 'site:jobs.ashbyhq.com React Worldwide frontend engineer', source: 'Ashby' },
   { query: 'site:jobs.ashbyhq.com React LATAM frontend', source: 'Ashby' },
-  // Greenhouse — frontend / React roles remote or open worldwide
+  { query: 'site:jobs.ashbyhq.com TypeScript Remote UI Engineer', source: 'Ashby' },
+  { query: 'site:jobs.ashbyhq.com Senior Product Engineer Frontend Remote', source: 'Ashby' },
+  // Greenhouse — frontend / React / Next.js roles remote or open worldwide
   { query: 'site:job-boards.greenhouse.io React Remote frontend engineer', source: 'Greenhouse' },
+  { query: 'site:job-boards.greenhouse.io Next.js Remote frontend', source: 'Greenhouse' },
   { query: 'site:job-boards.greenhouse.io React Anywhere frontend', source: 'Greenhouse' },
   { query: 'site:job-boards.greenhouse.io React LATAM frontend engineer', source: 'Greenhouse' },
+  { query: 'site:job-boards.greenhouse.io TypeScript Remote UI Frontend', source: 'Greenhouse' },
+  { query: 'site:job-boards.greenhouse.io Senior Product Engineer Frontend Remote', source: 'Greenhouse' },
 ];
 
 interface SerperOrganic {
