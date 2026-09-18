@@ -151,17 +151,34 @@ async function fetchGreenhouseSlug(companySlug: string): Promise<ScrapedJob[]> {
 
 // ─── Public API ──────────────────────────────────────────────────────────────
 
+const DEMO_COMPANY_SLUGS = new Set([
+  'abcinc',
+  'examplecorp',
+  'demo',
+  'test',
+  'sandbox',
+  'sample',
+  'samplecompany',
+  'greenhousetest',
+  'testcompany',
+  'ancinc',
+  'acme',
+  'acmecorp',
+]);
+
 /** Extract company slug from an Ashby job URL */
 function ashbySlugFromUrl(url: string): string | null {
   const match = url.match(/jobs\.ashbyhq\.com\/([^/]+)/);
-  return match?.[1] ?? null;
+  const slug = match?.[1]?.toLowerCase() ?? null;
+  return slug && !DEMO_COMPANY_SLUGS.has(slug) ? slug : null;
 }
 
 /** Extract company slug from a Greenhouse job URL */
 function greenhouseSlugFromUrl(url: string): string | null {
   // Covers job-boards.greenhouse.io/SLUG and job-boards.eu.greenhouse.io/SLUG
   const match = url.match(/greenhouse\.io\/([^/]+)/);
-  return match?.[1] ?? null;
+  const slug = match?.[1]?.toLowerCase() ?? null;
+  return slug && !DEMO_COMPANY_SLUGS.has(slug) ? slug : null;
 }
 
 /**
@@ -178,10 +195,10 @@ export async function extractJobsFromSearchResults(
   for (const { url, source } of results) {
     if (source === 'Ashby') {
       const slug = ashbySlugFromUrl(url);
-      if (slug) ashbySlugs.add(slug);
+      if (slug && !DEMO_COMPANY_SLUGS.has(slug)) ashbySlugs.add(slug);
     } else if (source === 'Greenhouse') {
       const slug = greenhouseSlugFromUrl(url);
-      if (slug) greenhouseSlugs.add(slug);
+      if (slug && !DEMO_COMPANY_SLUGS.has(slug)) greenhouseSlugs.add(slug);
     }
   }
 
