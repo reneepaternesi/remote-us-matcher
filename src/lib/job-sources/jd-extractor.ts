@@ -144,7 +144,7 @@ async function fetchGreenhouseSlug(companySlug: string): Promise<ScrapedJob[]> {
       };
     });
   } catch (err) {
-    console.warn(`[jd-extractor] Greenhouse fetch failed for slug "${companySlug}":`, err);
+    console.warn(`[jd-extractor] Greenhouse fetch failed for slug "${companySlug}":`, (err as Error).message || err);
     return [];
   }
 }

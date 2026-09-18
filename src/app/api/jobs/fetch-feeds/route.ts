@@ -166,9 +166,10 @@ export async function POST() {
       // Must contain at least one target role OR tech stack keyword
       const hasRole = targetRolesKeywords.some(kw => text.includes(kw));
       const hasTech = techStackKeywords.some(kw => text.includes(kw));
-      
       return hasRole || hasTech;
     });
+
+    console.log(`[fetch-feeds] Total raw fetched: ${allJobs.length} jobs. After anti-agency/W2/geo filters: ${filteredJobs.length} jobs.`);
 
     let savedCount = 0;
 
