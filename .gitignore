@@ -51,3 +51,8 @@ dev.db
 APPLICATIONS_TRACKING*.md
 *Interview_Prep*.md
 *Architecture_Study*.md
+
+# Local Agent Rules & Prompts
+.agents/
+.claude/
+.windsurf/
