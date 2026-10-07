@@ -59,7 +59,11 @@ export default function DashboardJobs({ jobs, minHourlyRate }: Props) {
   const toggleFilter = (f: QuickFilter) => {
     setActiveFilters((prev) => {
       const next = new Set(prev);
-      next.has(f) ? next.delete(f) : next.add(f);
+      if (next.has(f)) {
+        next.delete(f);
+      } else {
+        next.add(f);
+      }
       return next;
     });
   };

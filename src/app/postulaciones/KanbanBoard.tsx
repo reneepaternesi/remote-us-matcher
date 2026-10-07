@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Trash2, CheckCircle2, AlertTriangle, RefreshCw, ExternalLink, XCircle, ArrowRightCircle, Ban } from 'lucide-react';
+import { Trash2, CheckCircle2, AlertTriangle, RefreshCw, ExternalLink, XCircle, ArrowRightCircle, Ban, Clock } from 'lucide-react';
 import { Job } from '@prisma/client';
 import JobModal from '@/components/JobModal';
 import { updateJobStatus, discardJob, moveClosedJobs } from '@/app/actions';
@@ -12,11 +12,12 @@ export default function KanbanBoard({ initialJobs }: { initialJobs: Job[] }) {
   const [isVerifying, setIsVerifying] = useState(false);
   const [isMoving, setIsMoving] = useState(false);
   const [verificationMap, setVerificationMap] = useState<Record<string, VerificationResult>>({});
-  const [closedIdsDetected, setClosedIdsDetected] = useState<string[]>([]);
+  const [closedItemsDetected, setClosedItemsDetected] = useState<Array<{ id: string; reason?: string }>>([]);
   const [verificationSummary, setVerificationSummary] = useState<{
     total: number;
     active: number;
     closed: number;
+    ttlExpired: number;
   } | null>(null);
 
   const columns = [
@@ -61,19 +62,23 @@ export default function KanbanBoard({ initialJobs }: { initialJobs: Job[] }) {
       const data = await res.json();
       if (data.success && data.results) {
         const newMap: Record<string, VerificationResult> = {};
-        const closed: string[] = [];
+        const closedItems: Array<{ id: string; reason?: string }> = [];
         for (const item of data.results) {
           newMap[item.id] = item.verification;
           if (item.verification.status === 'CLOSED') {
-            closed.push(item.id);
+            closedItems.push({
+              id: item.id,
+              reason: item.verification.reason
+            });
           }
         }
         setVerificationMap(newMap);
-        setClosedIdsDetected(closed);
+        setClosedItemsDetected(closedItems);
         setVerificationSummary({
           total: data.total,
           active: data.active,
-          closed: data.closed
+          closed: data.closed,
+          ttlExpired: data.ttlExpired || 0
         });
       }
     } catch (e) {
@@ -84,11 +89,11 @@ export default function KanbanBoard({ initialJobs }: { initialJobs: Job[] }) {
   };
 
   const handleMoveClosedToRejected = async () => {
-    if (closedIdsDetected.length === 0) return;
+    if (closedItemsDetected.length === 0) return;
     setIsMoving(true);
     try {
-      await moveClosedJobs(closedIdsDetected);
-      setClosedIdsDetected([]);
+      await moveClosedJobs(closedItemsDetected);
+      setClosedItemsDetected([]);
     } catch (e) {
       console.error('Error moving closed jobs:', e);
     } finally {
@@ -107,11 +112,11 @@ export default function KanbanBoard({ initialJobs }: { initialJobs: Job[] }) {
             className="flex items-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 disabled:bg-cyan-800/50 text-white text-xs font-semibold rounded-lg transition-all shadow-md shadow-cyan-950/40"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isVerifying ? 'animate-spin' : ''}`} />
-            {isVerifying ? 'Verificando enlaces...' : 'Verificar Estado Online de Postulaciones'}
+            {isVerifying ? 'Verificando enlaces y TTL (10d)...' : 'Verificar Estado Online & TTL (10d)'}
           </button>
 
           {verificationSummary && (
-            <div className="flex items-center gap-3 text-xs bg-slate-950/80 px-3 py-1.5 rounded-lg border border-slate-800">
+            <div className="flex flex-wrap items-center gap-3 text-xs bg-slate-950/80 px-3 py-1.5 rounded-lg border border-slate-800">
               <span className="text-slate-400">
                 Verificadas: <strong className="text-white">{verificationSummary.total}</strong>
               </span>
@@ -119,17 +124,17 @@ export default function KanbanBoard({ initialJobs }: { initialJobs: Job[] }) {
                 <CheckCircle2 className="w-3.5 h-3.5" /> {verificationSummary.active} Activas
               </span>
               {verificationSummary.closed > 0 ? (
-                <span className="inline-flex items-center gap-1 text-red-400 font-bold bg-red-950/50 px-2 py-0.5 rounded border border-red-800/40">
-                  <AlertTriangle className="w-3.5 h-3.5" /> {verificationSummary.closed} Cerradas
+                <span className="inline-flex items-center gap-1 text-amber-400 font-bold bg-amber-950/50 px-2 py-0.5 rounded border border-amber-800/40">
+                  <AlertTriangle className="w-3.5 h-3.5" /> {verificationSummary.closed} Para Cerrar / Vencidas {verificationSummary.ttlExpired > 0 && `(${verificationSummary.ttlExpired} por TTL)`}
                 </span>
               ) : (
-                <span className="text-slate-500">· 0 cerradas</span>
+                <span className="text-slate-500">· 0 cerradas/vencidas</span>
               )}
             </div>
           )}
         </div>
 
-        {closedIdsDetected.length > 0 && (
+        {closedItemsDetected.length > 0 && (
           <div className="flex items-center gap-3">
             <button
               onClick={handleMoveClosedToRejected}
@@ -137,7 +142,7 @@ export default function KanbanBoard({ initialJobs }: { initialJobs: Job[] }) {
               className="flex items-center gap-1.5 text-xs font-bold text-amber-200 bg-amber-950/60 hover:bg-amber-900/60 border border-amber-700/50 px-3 py-1.5 rounded-lg transition-all"
             >
               <ArrowRightCircle className="w-3.5 h-3.5 text-amber-400" />
-              {isMoving ? 'Moviendo...' : `Mover ${closedIdsDetected.length} vacantes cerradas a Cerradas/Rechazadas`}
+              {isMoving ? 'Moviendo...' : `Mover ${closedItemsDetected.length} vacantes cerradas/vencidas a Cerradas/Rechazadas`}
             </button>
           </div>
         )}
@@ -179,6 +184,8 @@ export default function KanbanBoard({ initialJobs }: { initialJobs: Job[] }) {
                             ? 'border-amber-900/50 bg-amber-950/10'
                             : isRejected
                             ? 'border-red-900/40 bg-red-950/10'
+                            : verification?.isTtlExpired
+                            ? 'border-amber-500/50 bg-amber-950/10'
                             : verification?.status === 'CLOSED'
                             ? 'border-red-500/50 bg-red-950/10'
                             : verification?.status === 'ACTIVE'
@@ -198,7 +205,7 @@ export default function KanbanBoard({ initialJobs }: { initialJobs: Job[] }) {
                         <div className="flex flex-wrap items-center gap-1.5 mb-3">
                           {isClosed && (
                             <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-300 bg-amber-950/50 border border-amber-800/50 px-2 py-0.5 rounded">
-                              <Ban className="w-3 h-3 text-amber-400" /> Vacante Cerrada en Origen
+                              <Ban className="w-3 h-3 text-amber-400" /> Vacante Cerrada / Vencida
                             </span>
                           )}
                           {isRejected && (
@@ -207,15 +214,25 @@ export default function KanbanBoard({ initialJobs }: { initialJobs: Job[] }) {
                             </span>
                           )}
 
-                          {/* Live Online Verification Badges for active applications */}
+                          {/* Live Online & TTL Verification Badges for active applications */}
                           {!isClosed && !isRejected && verification && (
                             <>
                               {verification.status === 'ACTIVE' && (
                                 <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-2 py-0.5 rounded">
-                                  <CheckCircle2 className="w-3 h-3" /> Online en Portal
+                                  <CheckCircle2 className="w-3 h-3" /> Online en Portal ({verification.businessDaysElapsed ?? 0}d hábiles)
                                 </span>
                               )}
-                              {verification.status === 'CLOSED' && (
+                              {verification.isTtlExpired && (
+                                <div className="w-full flex flex-col gap-1 p-2 bg-amber-950/40 border border-amber-800/50 rounded text-amber-300 text-[11px]">
+                                  <div className="flex items-center gap-1 font-semibold text-amber-400">
+                                    <Clock className="w-3.5 h-3.5" /> Vencida por TTL (10+ días hábiles)
+                                  </div>
+                                  {verification.reason && (
+                                    <p className="text-[10px] text-amber-400/80 leading-tight">{verification.reason}</p>
+                                  )}
+                                </div>
+                              )}
+                              {!verification.isTtlExpired && verification.status === 'CLOSED' && (
                                 <div className="w-full flex flex-col gap-1 p-2 bg-red-950/40 border border-red-800/50 rounded text-red-300 text-[11px]">
                                   <div className="flex items-center gap-1 font-semibold text-red-400">
                                     <XCircle className="w-3.5 h-3.5" /> Oferta Cerrada en Portal
@@ -227,7 +244,7 @@ export default function KanbanBoard({ initialJobs }: { initialJobs: Job[] }) {
                               )}
                               {verification.status === 'UNKNOWN' && (
                                 <span className="inline-flex items-center gap-1 text-[10px] text-slate-400 bg-slate-900 border border-slate-800 px-2 py-0.5 rounded">
-                                  ⚪ {verification.reason || 'Estado no concluyente'}
+                                  ⚪ {verification.reason || 'Estado no concluyente'} ({verification.businessDaysElapsed ?? 0}d hábiles)
                                 </span>
                               )}
                             </>

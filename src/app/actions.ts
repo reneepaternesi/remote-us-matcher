@@ -53,16 +53,36 @@ export async function updateJobStatus(jobId: string, status: string) {
   }
 }
 
-export async function moveClosedJobs(closedIds: string[]) {
+export async function moveClosedJobs(closedInput: string[] | Array<{ id: string; reason?: string }>) {
   try {
-    if (closedIds.length === 0) return { success: true, count: 0 };
-    await prisma.job.updateMany({
-      where: { id: { in: closedIds } },
-      data: { status: 'CLOSED' }
-    });
-    revalidatePath('/');
-    revalidatePath('/postulaciones');
-    return { success: true, count: closedIds.length };
+    if (closedInput.length === 0) return { success: true, count: 0 };
+    
+    if (typeof closedInput[0] === 'string') {
+      const ids = closedInput as string[];
+      await prisma.job.updateMany({
+        where: { id: { in: ids } },
+        data: { status: 'CLOSED' }
+      });
+      revalidatePath('/');
+      revalidatePath('/postulaciones');
+      return { success: true, count: ids.length };
+    } else {
+      const items = closedInput as Array<{ id: string; reason?: string }>;
+      await Promise.all(
+        items.map(item =>
+          prisma.job.update({
+            where: { id: item.id },
+            data: {
+              status: 'CLOSED',
+              notes: item.reason ? item.reason : undefined
+            }
+          })
+        )
+      );
+      revalidatePath('/');
+      revalidatePath('/postulaciones');
+      return { success: true, count: items.length };
+    }
   } catch (error) {
     console.error('Error moving closed jobs:', error);
     return { success: false, error: 'No se pudieron mover las vacantes cerradas' };
