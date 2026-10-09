@@ -161,15 +161,14 @@ The architecture is built on four core decisions:
 ### Problem 2: Multi-Analyst Concurrency & Preventing Lost Work
 - **The Challenge:** Prevent concurrent editing conflicts across analysts while protecting uncommitted work against network drops and browser interruptions.
 - **Approach:**
-
-<div align="center" style="margin: 8px 0;">
-  <img src="data:image/jpeg;base64,${img1Base64}" alt="Architectural Approach Flow" style="width: 100%; max-width: 780px;" />
-</div>
-
   1. *Temporary Locks with Heartbeats:* When an analyst opens a document, the client acquires a short-lived lease with an expiration time. A periodic background HTTP request (\`POST /api/documents/:id/heartbeat\`) renews the lease while active. If the tab closes or connection drops, the lease expires on the backend so colleagues are never locked out.
   2. *Saving Locally Before Network Requests:* Every edit is immediately saved locally in IndexedDB before being sent to the server. The UI updates optimistically with immediate visual response.
   3. *Graceful Offline & Conflict Resolution:* When disconnected, a prominent offline indicator warns the analyst that real-time lock renewal is paused. Work continues locally. Upon reconnect, the client validates the document lock before flushing pending edits. If the lease expired during extended downtime and another analyst is currently editing or has modified the document, the server returns \`409 Conflict\`. Rather than losing work or overwriting active edits, the client preserves local drafts and displays a side-by-side resolution panel (*Your Local Draft* vs *Current Server Value*) so the analyst can decide without data loss.
   4. *Background & Multi-Tab Safety:* If an analyst switches tabs, the lock refreshes automatically upon returning. If the same document is opened in a second tab, the new tab defaults to read-only mode with an option to take over editing, preventing duplicate saves from the same browser.
+
+<div align="center" style="margin: 8px 0;">
+  <img src="data:image/jpeg;base64,\${img1Base64}" alt="Architectural Approach Flow" style="width: 100%; max-width: 780px;" />
+</div>
 
 ### Problem 3: Fast Keyboard Ergonomics & WCAG 2.1 AA Compliance
 - **The Challenge:** Processing thousands of daily data points requires mouse-free speed while complying fully with WCAG 2.1 AA accessibility standards.
