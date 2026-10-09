@@ -5,8 +5,11 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const appPassword = process.env.APP_PASSWORD;
 
-  // If no password is configured on the server, allow all access (e.g. dev mode fallback if not set)
+  // If no password configured in local dev, allow
   if (!appPassword) {
+    if (process.env.NODE_ENV === 'production') {
+      console.warn('APP_PASSWORD is not set in production');
+    }
     return NextResponse.next();
   }
 
@@ -14,7 +17,7 @@ export async function middleware(request: NextRequest) {
   const sessionToken = request.cookies.get(AUTH_COOKIE_NAME)?.value;
   const isAuthenticated = sessionToken && sessionToken === expectedToken;
 
-  // If already authenticated and trying to access /login, redirect to home
+  // If user is accessing /login
   if (pathname === '/login') {
     if (isAuthenticated) {
       return NextResponse.redirect(new URL('/', request.url));
@@ -22,12 +25,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Allow login endpoint
-  if (pathname === '/api/auth/login') {
+  // Allow auth API routes
+  if (pathname.startsWith('/api/auth/')) {
     return NextResponse.next();
   }
 
-  // If not authenticated, protect routes
+  // If unauthenticated, block and redirect to login
   if (!isAuthenticated) {
     if (pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -44,13 +47,15 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public assets (svg, png, jpg, jpeg, webp)
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/',
+    '/postulaciones',
+    '/postulaciones/:path*',
+    '/scraper',
+    '/scraper/:path*',
+    '/perfil',
+    '/perfil/:path*',
+    '/login',
+    '/api/:path*',
   ],
 };
+
