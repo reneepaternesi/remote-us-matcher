@@ -167,7 +167,7 @@ The architecture is built on four core decisions:
   4. *Background & Multi-Tab Safety:* If an analyst switches tabs, the lock refreshes automatically upon returning. If the same document is opened in a second tab, the new tab defaults to read-only mode with an option to take over editing, preventing duplicate saves from the same browser.
 
 <div align="center" style="margin: 8px 0;">
-  <img src="data:image/jpeg;base64,\${img1Base64}" alt="Architectural Approach Flow" style="width: 100%; max-width: 780px;" />
+  <img src="data:image/jpeg;base64,${img1Base64}" alt="Architectural Approach Flow" style="width: 100%; max-width: 780px;" />
 </div>
 
 ### Problem 3: Fast Keyboard Ergonomics & WCAG 2.1 AA Compliance
