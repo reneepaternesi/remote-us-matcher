@@ -1,10 +1,25 @@
 'use client';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Briefcase, Link as LinkIcon, CheckSquare, User } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Briefcase, Link as LinkIcon, CheckSquare, User, LogOut } from 'lucide-react';
 
 export default function Header({ availableCount = 0, appliedCount = 0 }: { availableCount?: number, appliedCount?: number }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  if (pathname === '/login') {
+    return null;
+  }
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      router.push('/login');
+      router.refresh();
+    } catch (e) {
+      console.error('Failed to logout', e);
+    }
+  };
 
   const navItems = [
     { name: 'Vacantes', path: '/', icon: Briefcase, count: availableCount },
@@ -50,7 +65,16 @@ export default function Header({ availableCount = 0, appliedCount = 0 }: { avail
             </Link>
           );
         })}
+
+        <button
+          onClick={handleLogout}
+          title="Bloquear / Cerrar Sesión"
+          className="ml-2 p-2 rounded-md text-slate-400 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-colors cursor-pointer"
+        >
+          <LogOut className="w-4 h-4" />
+        </button>
       </nav>
     </header>
   );
 }
+
