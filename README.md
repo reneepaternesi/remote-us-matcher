@@ -13,6 +13,16 @@ This project was built to solve the signal-to-noise ratio in modern job hunting.
 - **Database & Backend:** Supabase (PostgreSQL), Prisma ORM
 - **AI Integration:** Google Gemini API (for semantic analysis and automated matching)
 
+## 🏗️ System Architecture
+
+![Remote US Matcher Architecture](public/docs/architecture.jpeg)
+
+The application follows a clean, decoupled architecture:
+1. **Frontend Layer (Next.js App Router & React 19):** High-density interfaces, interactive Kanban state machines, real-time client-side search, and outbound CRM management.
+2. **Serverless API Layer (Route Handlers):** Modular endpoints (`/api/jobs/*`) for URL scraping, feed aggregation, AI analysis, and application verification.
+3. **Core Domain & Business Logic:** Dedicated TypeScript services for DOM extraction (`jd-extractor.ts`), scoring engines (`search-engine.ts`), and 10-business-day TTL validation (`job-verifier.ts`).
+4. **Data Persistence:** Prisma ORM connected to Supabase PostgreSQL with connection pooling.
+
 ## ✨ Key Features
 
 - **Data-Dense Dashboards:** Designed to handle and display complex datasets without overwhelming the user, focusing on visual hierarchy and rapid scanning.
