@@ -175,10 +175,9 @@ The architecture is built on four core decisions:
    - *Lease & Versioning:* The server validates document lock tokens on writes and returns HTTP 409 if a conflict occurs.
    - *Queue & Real-time Sync:* The server handles filtering and pagination for large document lists, broadcasts live lock status changes, and returns missed updates upon client reconnection.
    - *AI Metadata:* The backend provides normalized coordinates (`[0.0, 1.0]`), page numbers, confidence scores (`0.00 - 1.00`), and field validation schemas.
-2. **Usage, Governance & Quality Metrics:**
+2. **Usage & Session Safety:**
    - *Document Volume & Scale:* Documents are typically 1–10 page PDFs or scans processed by teams of concurrent analysts. Modern desktop browsers are used for comfortable side-by-side review.
-   - *Data Privacy & Session Safety:* Unsaved local drafts prompt for confirmation before explicit logout to prevent accidental data loss; session expiration preserves drafts until re-authentication.
-   - *Auditability & Performance Telemetry:* The backend preserves initial AI predictions alongside verified human edits for regulatory compliance and model fine-tuning. Frontend telemetry monitors typing responsiveness (input render latency) and document completion throughput to detect operational bottlenecks.
+   - *Data Privacy & Session Safety:* Unsaved local drafts prompt for confirmation before an intentional logout to prevent accidental data loss; automatic session expiration securely preserves drafts on the device until re-authentication by the same user.
 3. **Engineering Tradeoffs (Alternatives Considered):**
    - *Exclusive Locks vs. Multi-User Collaborative Editing:* Document review workflows assign one analyst per task. Exclusive locks with heartbeats prevent overlapping edits reliably, avoiding the unnecessary complexity of real-time collaborative editing engines.
    - *Server-Sent Events vs. WebSockets:* Document workflows only require one-way server broadcasts (lock status and queue updates). SSE operates over standard HTTP with built-in reconnection, eliminating the infrastructure complexity of stateful WebSockets.
