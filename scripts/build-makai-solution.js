@@ -99,7 +99,7 @@ img {
 
 # Async Technical Exercise: Frontend Architecture
 
-This document outlines the frontend architecture for an operations application where analysts review, correct, and approve AI-extracted document data throughout 8-hour shifts. When people spend full days reviewing dense forms, small UI delays compound into serious fatigue. The architectural focus is on responsive interactions, fluid document navigation, and local-first persistence that protects work against network interruptions, unexpected tab closures, and version conflicts.
+This document outlines the frontend architecture for an operations application where analysts review, correct, and approve AI-extracted document data for most of their working day. Because small UI delays compound across thousands of daily fields, the architecture prioritizes instant interactions, fluid document navigation, and local-first persistence that protects uncommitted work against network interruptions, unexpected tab closures, and concurrency conflicts.
 
 ## 1. High-Level Frontend Architecture
 
