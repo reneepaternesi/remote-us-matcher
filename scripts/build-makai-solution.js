@@ -140,7 +140,7 @@ The architecture is built on four core decisions:
 
 ### Keyboard Navigation & On-Screen Actions
 - **What it does:** Provides mouse-free keyboard ergonomics for power users paired with accessible on-screen buttons for all core workflows.
-- **How it works:** A centralized listener captures commands (\`Tab\` to navigate fields, \`Enter\` for new lines in textareas, \`Ctrl+Enter\` to approve, arrow keys when the viewer has focus). Visible buttons mirror these actions.
+- **How it works:** A centralized listener captures commands (\`Tab\` and \`Shift+Tab\` to navigate fields, \`Enter\` to confirm single-line fields, \`Ctrl+Enter\` to confirm multi-line textareas, \`Ctrl+Shift+Enter\` to approve the document, and arrow keys when the document viewer has focus). Visible buttons mirror these actions.
 - **Why:** Maximizes daily analyst speed while ensuring full accessibility and discoverability.
 
 ### Sync Manager & Persistence Engine
@@ -174,7 +174,7 @@ The architecture is built on four core decisions:
 ### Problem 3: Fast Keyboard Ergonomics & WCAG 2.1 AA Compliance
 - **The Challenge:** Processing thousands of daily data points requires mouse-free speed while complying fully with WCAG 2.1 AA accessibility standards.
 - **Approach:**
-  1. *Keyboard-First Workflow & Document Lifecycle:* Sensible defaults are provided out of the box with custom shortcut mapping available in settings: \`Tab\` and \`Shift+Tab\` navigate focus between fields without altering review state, while field confirmation is always an explicit action (\`Enter\` for single-line inputs, \`Ctrl+Enter\` for multi-line textareas, or a visible checkmark button). This ensures analysts never mark unread fields as verified by simply navigating past them. Submitting or Rejecting a document flushes all pending edits first and provides a brief undo window to prevent accidental actions. Single-key shortcuts only act when the document viewer has explicit focus to prevent intercepting form typing.
+  1. *Keyboard-First Workflow & Document Lifecycle:* Sensible defaults are provided out of the box with custom shortcut mapping available in settings: \`Tab\` and \`Shift+Tab\` navigate focus between fields without altering review state, while field confirmation is always an explicit action (\`Enter\` for single-line inputs, \`Ctrl+Enter\` for multi-line textareas, or a visible checkmark button). This ensures analysts never mark unread fields as verified by simply navigating past them. Submitting (\`Ctrl+Shift+Enter\`) or Rejecting a document flushes all pending edits first and provides a brief undo window to prevent accidental actions. Single-key shortcuts only act when the document viewer has explicit focus to prevent intercepting form typing.
   2. *Isolated Form Inputs:* Each input manages local state with selector subscriptions; editing field #120 only updates that component, eliminating form-wide re-render lag.
   3. *Accessibility & Screen Reader Support:* Opening a document automatically places initial focus on the first actionable field, while the document viewer has its own keyboard-accessible focus ring. Form fields link AI confidence and validation messages via \`aria-describedby\`, system status changes are announced politely (via \`aria-live="polite"\`) without interrupting typing, and all visual elements satisfy standard contrast ratios.
 
