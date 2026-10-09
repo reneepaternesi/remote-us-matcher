@@ -115,6 +115,8 @@ The architecture is built on four core decisions:
 - **How it works:** The server handles cursor-based pagination and search, returning one page at a time while the client caches results. A live event channel updates document statuses in place without jumping rows under the cursor. Filter settings mirror in the URL (`?status=pending&type=invoice`) for shareable bookmarks.
 - **Why:** Keeps memory consumption flat and scrolling smooth regardless of queue size.
 
+<div style="page-break-before: always;"></div>
+
 ### Document Viewport ( `/review/:id` - Left Pane )
 - **What it does:** Displays multi-page documents (PDF/scanned images) with 2D zoom and pan to magnify fine print and center bounding boxes.
 - **How it works:** The base canvas renders pages using standard client-side PDF rendering (unmounting off-screen pages in 10+ page contracts to save memory). A transparent SVG layer sits directly on top, rendering highlight boxes. Zooming and panning stay smooth during interaction. Once zooming stops, the document is redrawn sharp at the new size so fine scanned print remains clear and readable.
@@ -138,6 +140,8 @@ The architecture is built on four core decisions:
 - **What it does:** Manages saving, offline buffering, background prefetching, and network synchronization.
 - **How it works:** Field changes write immediately to browser IndexedDB as local draft entries, which a background sync batches and flushes to the server (`PATCH /api/documents/:id/fields`). As the analyst approaches completion of the document (reaching high review progress), the engine requests the server to reserve and pre-fetch the next assigned document in the background, ensuring instant transitions without duplicate assignments.
 - **Why:** Protects against Wi-Fi drops or closed laptops while eliminating waiting time between consecutive reviews.
+
+<div style="page-break-before: always;"></div>
 
 ## 3. The Three Hardest Problems & Architectural Solutions
 
