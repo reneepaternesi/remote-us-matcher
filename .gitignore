@@ -51,8 +51,18 @@ dev.db
 APPLICATIONS_TRACKING*.md
 *Interview_Prep*.md
 *Architecture_Study*.md
+*Technical_Prep*.md
+*Exercise_Solution*.md
+*Transcript*.*
+
+# Temporary scratch scripts & loose diagrams
+/scripts/
+/docs/images/
+*.png
+*.svg
 
 # Local Agent Rules & Prompts
 .agents/
 .claude/
 .windsurf/
+
