@@ -41,25 +41,30 @@ As a Senior Frontend Engineer, I believe the best products emerge when there is 
 
 ## 🛠️ Local Development
 
-1. Clone the repository:
-   \`\`\`bash
-   git clone https://github.com/yourusername/remote-us-matcher.git
-   \`\`\`
-2. Install dependencies:
-   \`\`\`bash
-   npm install
-   \`\`\`
-3. Set up your `.env` file with your Supabase and API keys:
-   \`\`\`env
-   DATABASE_URL="postgresql://postgres.[ID]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true"
-   DIRECT_URL="postgresql://postgres.[ID]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres"
-   GEMINI_API_KEY="your_api_key"
-   \`\`\`
-4. Push the Prisma schema to your database:
-   \`\`\`bash
-   npx prisma db push
-   \`\`\`
-5. Run the development server:
-   \`\`\`bash
-   npm run dev
-   \`\`\`
+1. **Clone the repository:**
+```bash
+git clone https://github.com/reneepaternesi/remote-us-matcher.git
+cd remote-us-matcher
+```
+
+2. **Install dependencies:**
+```bash
+npm install
+```
+
+3. **Set up your `.env` file with your database and API keys:**
+```env
+DATABASE_URL="postgresql://postgres.[ID]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres.[ID]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres"
+GEMINI_API_KEY="your_api_key"
+```
+
+4. **Push the Prisma schema to your database:**
+```bash
+npx prisma db push
+```
+
+5. **Run the development server:**
+```bash
+npm run dev
+```
