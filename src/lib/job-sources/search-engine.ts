@@ -43,6 +43,16 @@ interface SerperResponse {
   organic?: SerperOrganic[];
 }
 
+let lastSerperWarning: string | null = null;
+
+export function getLastSerperWarning(): string | null {
+  return lastSerperWarning;
+}
+
+export function resetSerperWarning(): void {
+  lastSerperWarning = null;
+}
+
 /**
  * Runs a single Serper.dev search and returns the organic results.
  * tbs=qdr:m → last month (same as Google Tools > Past month)
@@ -51,6 +61,7 @@ async function runSerperQuery(query: string): Promise<SerperOrganic[]> {
   const apiKey = process.env.SERPER_API_KEY;
   if (!apiKey) {
     console.warn('[search-engine] SERPER_API_KEY is not set. Skipping search.');
+    lastSerperWarning = 'SERPER_API_KEY no configurada';
     return [];
   }
 
@@ -68,7 +79,18 @@ async function runSerperQuery(query: string): Promise<SerperOrganic[]> {
     });
 
     if (!res.ok) {
-      console.error(`[search-engine] Serper API error: ${res.status} ${res.statusText}`);
+      const errText = await res.text();
+      let parsedMsg = errText;
+      try {
+        const json = JSON.parse(errText);
+        parsedMsg = json.message || errText;
+      } catch {}
+      console.error(`[search-engine] Serper API error: ${res.status} ${res.statusText} - ${parsedMsg}`);
+      if (res.status === 400 && parsedMsg.toLowerCase().includes('not enough credits')) {
+        lastSerperWarning = 'Serper.dev sin créditos (renovar SERPER_API_KEY)';
+      } else {
+        lastSerperWarning = `Serper error ${res.status}: ${parsedMsg}`;
+      }
       return [];
     }
 

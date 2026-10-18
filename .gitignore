@@ -67,3 +67,5 @@ APPLICATIONS_TRACKING*.md
 .claude/
 .windsurf/
 
+# Practice Sandbox
+practice-review-app/

@@ -181,28 +181,92 @@ function greenhouseSlugFromUrl(url: string): string | null {
   return slug && !DEMO_COMPANY_SLUGS.has(slug) ? slug : null;
 }
 
+// Verified target tech companies using Ashby & Greenhouse boards.
+// Used as a persistent seed baseline so board scraping always runs even if Serper credits expire.
+const SEED_ASHBY_SLUGS = [
+  'supabase',
+  'linear',
+  'ramp',
+  'clickup',
+  'revenuecat',
+  'runway',
+  'scribe',
+  'lightning',
+  'makai-labs',
+  'phantom',
+  'vultr',
+  'reedsy',
+  'sequence',
+  'kota',
+  'planera',
+  'symbiotic',
+  'profound',
+  'geobrowser',
+  'addi',
+  'leantechniques',
+  'silver',
+  'umbrel',
+  'handshake',
+  'shelf',
+  'coinflow',
+  'tempo',
+  'latamcent',
+  'provable',
+  'g2i',
+];
+
+const SEED_GREENHOUSE_SLUGS = [
+  'vercel',
+  'affirm',
+  'tailscale',
+  'mercury',
+  'stackblitz',
+  'gitlab',
+  'reddit',
+  'opentable',
+  'gympass',
+  'boxinc',
+  'virtu',
+  'admios',
+  'canonical',
+  'encora10',
+];
+
 /**
  * Given a list of URLs from Serper (one per job), groups them by company slug
  * and fetches ALL jobs for each discovered company via the platform JSON API.
- * This is more efficient than fetching each URL individually and avoids SPA issues.
+ * Includes a verified seed list of tech companies so scraping works reliably
+ * even if search engine discovery limits/credits are reached.
  */
 export async function extractJobsFromSearchResults(
   results: { url: string; source: 'Ashby' | 'Greenhouse' }[]
 ): Promise<ScrapedJob[]> {
-  const ashbySlugs = new Set<string>();
-  const greenhouseSlugs = new Set<string>();
+  const ashbySlugs = new Set<string>(SEED_ASHBY_SLUGS);
+  const greenhouseSlugs = new Set<string>(SEED_GREENHOUSE_SLUGS);
+
+  let dynamicAshby = 0;
+  let dynamicGreenhouse = 0;
 
   for (const { url, source } of results) {
     if (source === 'Ashby') {
       const slug = ashbySlugFromUrl(url);
-      if (slug && !DEMO_COMPANY_SLUGS.has(slug)) ashbySlugs.add(slug);
+      if (slug && !DEMO_COMPANY_SLUGS.has(slug)) {
+        if (!ashbySlugs.has(slug)) dynamicAshby++;
+        ashbySlugs.add(slug);
+      }
     } else if (source === 'Greenhouse') {
       const slug = greenhouseSlugFromUrl(url);
-      if (slug && !DEMO_COMPANY_SLUGS.has(slug)) greenhouseSlugs.add(slug);
+      if (slug && !DEMO_COMPANY_SLUGS.has(slug)) {
+        if (!greenhouseSlugs.has(slug)) dynamicGreenhouse++;
+        greenhouseSlugs.add(slug);
+      }
     }
   }
 
-  console.log(`[jd-extractor] Discovered ${ashbySlugs.size} Ashby companies, ${greenhouseSlugs.size} Greenhouse companies`);
+  console.log(
+    `[jd-extractor] Querying ${ashbySlugs.size} Ashby companies (${dynamicAshby} new via search), ` +
+    `${greenhouseSlugs.size} Greenhouse companies (${dynamicGreenhouse} new via search)`
+  );
 
   const [ashbyResults, greenhouseResults] = await Promise.all([
     Promise.all([...ashbySlugs].map(fetchAshbySlug)),

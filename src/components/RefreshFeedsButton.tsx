@@ -17,10 +17,10 @@ export default function RefreshFeedsButton() {
       
       if (data.success) {
         if (data.processedCount > 0) {
-          setMessage(`¡${data.processedCount} nuevas vacantes encontradas!`);
+          setMessage(`¡${data.processedCount} nuevas vacantes encontradas!${data.warning ? ` (${data.warning})` : ''}`);
           router.refresh();
         } else {
-          setMessage('');
+          setMessage(data.warning ? `Sin nuevas vacantes (${data.warning})` : 'Búsqueda completada (sin nuevas vacantes)');
           router.refresh();
         }
       } else {

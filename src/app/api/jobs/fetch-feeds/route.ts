@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import Parser from 'rss-parser';
-import { searchJobUrls } from '@/lib/job-sources/search-engine';
+import { searchJobUrls, getLastSerperWarning, resetSerperWarning } from '@/lib/job-sources/search-engine';
 import { extractJobsFromSearchResults } from '@/lib/job-sources/jd-extractor';
 
 interface ScrapedJob {
@@ -16,6 +16,7 @@ interface ScrapedJob {
 
 export async function POST() {
   try {
+    resetSerperWarning();
     const parser = new Parser();
     let profile = await prisma.profileSettings.findUnique({
       where: { id: 'default' }
@@ -186,25 +187,27 @@ export async function POST() {
 
     let savedCount = 0;
 
-    for (const job of filteredJobs) {
-      try {
-        const exists = await prisma.job.findFirst({ 
-          where: { 
-            OR: [
-              { url: job.url },
-              {
-                AND: [
-                  { company: job.company },
-                  { title: job.title }
-                ]
-              }
-            ]
-          } 
-        });
-        if (exists) continue;
+    // Batch duplicate check using in-memory Sets to avoid hundreds of sequential round trips to remote DB
+    const existingJobs = await prisma.job.findMany({
+      select: { url: true, company: true, title: true }
+    });
+    const existingUrls = new Set(existingJobs.map(j => j.url));
+    const existingKeys = new Set(existingJobs.map(j => `${j.company.toLowerCase()}:::${j.title.toLowerCase()}`));
 
-        await prisma.job.create({
-          data: {
+    const jobsToCreate = filteredJobs.filter(job => {
+      if (existingUrls.has(job.url)) return false;
+      const key = `${job.company.toLowerCase()}:::${job.title.toLowerCase()}`;
+      if (existingKeys.has(key)) return false;
+      // Mark as seen so duplicates within the current batch are discarded
+      existingUrls.add(job.url);
+      existingKeys.add(key);
+      return true;
+    });
+
+    if (jobsToCreate.length > 0) {
+      try {
+        const result = await prisma.job.createMany({
+          data: jobsToCreate.map(job => ({
             title: job.title,
             company: job.company,
             url: job.url,
@@ -215,15 +218,23 @@ export async function POST() {
             analyzed: false,
             matchScore: 0,
             aiInsight: null
-          }
+          })),
+          skipDuplicates: true
         });
-        savedCount++;
+        savedCount = result.count;
       } catch (e) {
-        console.error('Error saving job from aggregate:', e);
+        console.error('Error batch inserting jobs:', e);
       }
     }
 
-    return NextResponse.json({ success: true, processedCount: savedCount, sources: ['Remotive', 'Jobicy', 'RemoteOK', 'Himalayas', 'WorkingNomads', 'WeWorkRemotely', 'Ashby', 'Greenhouse'] });
+    const warning = getLastSerperWarning();
+
+    return NextResponse.json({
+      success: true,
+      processedCount: savedCount,
+      warning: warning || null,
+      sources: ['Remotive', 'Jobicy', 'RemoteOK', 'Himalayas', 'WorkingNomads', 'WeWorkRemotely', 'Ashby', 'Greenhouse']
+    });
 
   } catch (error: unknown) {
     const err = error as Error;
