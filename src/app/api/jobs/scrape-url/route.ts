@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
 import prisma from '@/lib/prisma';
-
-// Initialize the Gemini SDK
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+import { generateContentWithFallback } from '@/lib/gemini';
 
 export async function POST(request: Request) {
   try {
@@ -78,36 +75,14 @@ export async function POST(request: Request) {
       }
     `;
 
-    let aiResponse;
-    const retries = 3;
-    for (let i = 0; i < retries; i++) {
-      try {
-        aiResponse = await ai.models.generateContent({
-          model: 'gemini-3.5-flash',
-          contents: prompt,
-        });
-        break;
-      } catch (error: unknown) {
-        const err = error as { status?: number; message?: string };
-        const isUnavailable = err?.status === 503 || err?.message?.includes('503') || err?.message?.includes('high demand');
-        if (isUnavailable && i < retries - 1) {
-          console.warn(`Gemini API overloaded (503). Retrying in 2 seconds... (Attempt ${i + 1} of ${retries})`);
-          await new Promise(res => setTimeout(res, 2000));
-          continue;
-        }
-        throw error;
-      }
-    }
-
-    if (!aiResponse) {
-      throw new Error("Failed to get AI response after retries");
-    }
-    const resultText = aiResponse.text;
-    if (!resultText) throw new Error("AI returned empty response");
+    const rawResult = await generateContentWithFallback(prompt);
     
-    // Clean up potential markdown formatting from the response
-    const jsonStr = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
-    const analysis = JSON.parse(jsonStr);
+    // Clean up potential markdown formatting and extract JSON
+    const jsonMatch = rawResult.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error("AI response did not contain valid JSON");
+    }
+    const analysis = JSON.parse(jsonMatch[0]);
 
     // Step 3.5: Secondary duplicate check based on extracted Title and Company
     const duplicateJob = await prisma.job.findFirst({
