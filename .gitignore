@@ -56,8 +56,7 @@ APPLICATIONS_TRACKING*.md
 *Exercise_Solution*.md
 *Transcript*.*
 
-# Temporary scratch scripts & loose diagrams
-/scripts/
+# Loose diagrams and docs assets
 /docs/images/
 *.png
 *.svg
